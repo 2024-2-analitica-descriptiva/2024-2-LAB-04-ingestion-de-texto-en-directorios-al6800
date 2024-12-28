@@ -1,73 +1,71 @@
-# pylint: disable=import-outside-toplevel
-# pylint: disable=line-too-long
-# flake8: noqa
-"""
-Escriba el codigo que ejecute la accion solicitada en cada pregunta.
-"""
+import os
+import pandas as pd
 
+def process_files(base_dir='files/input', output_dir='files/output'):
+    print("Iniciando el procesamiento de archivos...")
+    train_data = []
+    test_data = []
+
+    # Rutas absolutas a las carpetas 'train' y 'test'
+    train_folder = os.path.join(base_dir, 'train')
+    test_folder = os.path.join(base_dir, 'test')
+
+    # Verificación de la existencia de las carpetas
+    if not os.path.exists(train_folder):
+        print(f"La carpeta 'train' no existe en la ruta: {train_folder}")
+        return
+
+    if not os.path.exists(test_folder):
+        print(f"La carpeta 'test' no existe en la ruta: {test_folder}")
+        return
+
+    # Procesamos la carpeta train
+    for sentiment in ['positive', 'negative', 'neutral']:
+        sentiment_folder = os.path.join(train_folder, sentiment)
+        if not os.path.exists(sentiment_folder):
+            continue
+        for filename in os.listdir(sentiment_folder):
+            if filename.endswith('.txt'):
+                file_path = os.path.join(sentiment_folder, filename)
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    phrase = file.read().strip()
+                    if phrase:  # Si hay texto en el archivo
+                        train_data.append({'phrase': phrase, 'target': sentiment})
+
+    # Procesamos la carpeta test
+    for sentiment in ['positive', 'negative', 'neutral']:
+        sentiment_folder = os.path.join(test_folder, sentiment)
+        if not os.path.exists(sentiment_folder):
+            continue
+        for filename in os.listdir(sentiment_folder):
+            if filename.endswith('.txt'):
+                file_path = os.path.join(sentiment_folder, filename)
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    phrase = file.read().strip()
+                    if phrase:  # Si hay texto en el archivo
+                        test_data.append({'phrase': phrase, 'target': sentiment})
+
+    # Crear los DataFrames y guardar como CSV si hay datos
+    if train_data:
+        train_df = pd.DataFrame(train_data)
+        os.makedirs(output_dir, exist_ok=True)
+        train_df.to_csv(os.path.join(output_dir, 'train_dataset.csv'), index=False)
+        print("train_dataset.csv creado.")
+    else:
+        print("No se encontraron datos para 'train'.")
+
+    if test_data:
+        test_df = pd.DataFrame(test_data)
+        test_df.to_csv(os.path.join(output_dir, 'test_dataset.csv'), index=False)
+        print("test_dataset.csv creado.")
+    else:
+        print("No se encontraron datos para 'test'.")
 
 def pregunta_01():
     """
-    La información requerida para este laboratio esta almacenada en el
-    archivo "files/input.zip" ubicado en la carpeta raíz.
-    Descomprima este archivo.
-
-    Como resultado se creara la carpeta "input" en la raiz del
-    repositorio, la cual contiene la siguiente estructura de archivos:
-
-
-    ```
-    train/
-        negative/
-            0000.txt
-            0001.txt
-            ...
-        positive/
-            0000.txt
-            0001.txt
-            ...
-        neutral/
-            0000.txt
-            0001.txt
-            ...
-    test/
-        negative/
-            0000.txt
-            0001.txt
-            ...
-        positive/
-            0000.txt
-            0001.txt
-            ...
-        neutral/
-            0000.txt
-            0001.txt
-            ...
-    ```
-
-    A partir de esta informacion escriba el código que permita generar
-    dos archivos llamados "train_dataset.csv" y "test_dataset.csv". Estos
-    archivos deben estar ubicados en la carpeta "output" ubicada en la raiz
-    del repositorio.
-
-    Estos archivos deben tener la siguiente estructura:
-
-    * phrase: Texto de la frase. hay una frase por cada archivo de texto.
-    * sentiment: Sentimiento de la frase. Puede ser "positive", "negative"
-      o "neutral". Este corresponde al nombre del directorio donde se
-      encuentra ubicado el archivo.
-
-    Cada archivo tendria una estructura similar a la siguiente:
-
-    ```
-    |    | phrase                                                                                                                                                                 | target   |
-    |---:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------|
-    |  0 | Cardona slowed her vehicle , turned around and returned to the intersection , where she called 911                                                                     | neutral  |
-    |  1 | Market data and analytics are derived from primary and secondary research                                                                                              | neutral  |
-    |  2 | Exel is headquartered in Mantyharju in Finland                                                                                                                         | neutral  |
-    |  3 | Both operating profit and net sales for the three-month period increased , respectively from EUR16 .0 m and EUR139m , as compared to the corresponding quarter in 2006 | positive |
-    |  4 | Tampere Science Parks is a Finnish company that owns , leases and builds office properties and it specialises in facilities for technology-oriented businesses         | neutral  |
-    ```
-
-
+    Función principal que procesa los archivos y genera los archivos CSV.
     """
+    process_files()
+
+if __name__ == "__main__":
+    pregunta_01()
